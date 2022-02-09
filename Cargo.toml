@@ -1,0 +1,15 @@
+[package]
+name = "medman"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+structopt = "0.3.23"
+walkdir = "2.3.2"
+mp3-metadata = "0.3.3"
+parse_duration = "2.1.1"
+markdown-gen = "1.2.1"
+serde = { version = "1.0.130", features = ["derive"]}
+serde_json = "1.0.59"

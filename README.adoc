@@ -1,0 +1,124 @@
+= Gestionnaire de fichiers multimédia
+Stéphane Lopes <stephane.lopes@uvsq.fr>, Pablo de Oliveira Castro <pablo.oliveira@uvsq.fr>
+v2021-2022
+:icons: font
+:experimental:
+
+L'objectif de ce mini-projet est de créer une application en ligne commande pour gérer une collection de fichiers multimédia.
+L'application proposera une double interface utilisateur :
+
+* les arguments pourront être passés en paramètre de l'exécutable,
+* si l'exécutable est lancé sans argument, un mode interactif sera proposé à l'utilisateur.
+
+L'utilisateur saisira une commande suivie d'arguments.
+Les commandes à implémenter sont les suivantes :
+
+* `scan` : analyser récursivement un répertoire pour collecter les fichiers supportés
+** l'analyse doit extraire les métadonnées du fichier
+* `search` : effectue une recherche sur les données gérées (format de la requête ?)
+* `scrap` : récupérer des données sur le web pour un ensemble de fichiers
+* `write2md` : génèrer un fichier _Markdown_ contenant le résultat d'une requête
+* `write2??? : générer des playlists, ...
+* `tag` : ajoute un tag à un ensemble de fichiers (requêtes).
+Les données analysées peuvent être sauvegardées au format JSON pour une réutilisation ultérieure.
+
+Ce sujet contient des parties obligatoires et des parties optionnelles.
+Les parties optionnelles sont là pour vous donner des pistes d'évolutions possibles concernant cette application.
+Enfin, le sujet est volontairement peu contraignant afin de vous laisser proposer vos propres évolutions.
+
+[CAUTION]
+====
+* Compilez et exécutez votre programme après chaque modification.
+* Pensez à valider régulièrement votre travail avec `git`.
+* Respectez le https://doc.rust-lang.org/1.0.0/style/[guide de style] Rust dans votre code source.
+* En particulier, documentez vos API conformément aux recommandations.
+====
+
+== Structure du projet
+Le projet initial est géré avec `cargo` et est structuré en plusieurs modules et fichiers.
+
+. Quelles bibliothèques externes sont utilisées dans le projet ? Expliquez en une phrase leur utilité et donnez l'URL de leur documentation
++
+.*Réponse :* +
++
+_Bibliothèque 1_ :  `stuctpot` : Parser des arguments pris en ligne de commande (documentation : https://docs.rs/structopt/0.3.25/structopt/). +
+_Bibliothèque 2_ : `walkdir` : Pour le parcour recursif des répertoires (documentation : https://docs.rs/walkdir/2.3.2/walkdir/). +
+
+. Expliquez le rôle de chacun des modules/fichiers du projet et examinez attentivement les exportations (mot-clé `pub`)
++
+.*Réponse :* +
++
+_Modules_ : +
+`cli`: Permet l'analyse des arguments pris en ligne de commande. +
+`scan` : Durant la recherche de fichiers, permet le scan recursif d'un dossier. +
+`musicfile` : Strucutre de stockaage des metadonnées d'un fichier musical. +
++
+_Fichiers_ : +
+`lib.rs` : Contient la bibliothèque du projet. +
+`main.rs` : Contient l'exécutable du projet. + 
+
+
+== Structure de données initiale pour les fichiers audio
+Dans un premier temps, seuls les fichiers audio seront pris en compte.
+
+. Trouvez et documentez dans le code source l'ébauche d'API pour gérer les fichiers audio
+
+== Implémentation des fonctionnalités
+Certaines des fonctionnalités ci-dessous sont à intégrer obligatoirement dans le projet.
+D'autres sont optionnelles.
+L'usage de bibliothèques externes pour l'implémentation est non seulement autorisé mais même encouragé.
+
+=== Analyse d'un répertoire (`scan`)
+La fonction `scan` (obligatoire) doit analyser récursivement un répertoire pour collecter les fichiers supportés.
+L'analyse doit extraire les métadonnées du fichier.
+Ces dernières sont issues du système de fichiers (date de création, ...) ou extraites du fichier de média à l'aide d'une bibliothèque spécifique (https://crates.io/crates/mp3-metadata[mp3-metadata], https://crates.io/crates/ogg_metadata[ogg_metadata], ...).
+
+Les données analysées peuvent être sauvegardées par exemple au format JSON pour une réutilisation ultérieure.
+Des bibliothèques comme https://crates.io/crates/serde[Serde] pour sérialiser/désérialiser ou https://crates.io/crates/json[json] peuvent être utiliser pour cela.
+
+=== Recherche dans les métadonnées des fichiers (`search`)
+La fonction `search` (obligatoire) effectue une recherche sur les données gérées et retourne l'ensemble des médias correspondant.
+Le format de la requête doit permettre d'interroger les différents champs des fichiers médias.
+Vous pouvez par exemple vous inspirer d'une partie de la syntaxe d'outils de recherche par mots-clé comme https://lucene.apache.org/core/2_9_4/queryparsersyntax.html[Apache Lucene].
+
+=== Générer une liste au format Markdown (`write2md`)
+La fonction `write2md` (obligatoire) permet de génèrer un fichier _Markdown_ contenant le résultat d'une requête.
+La bibliothèque https://crates.io/crates/markdown-gen[markdown-gen] permet par exemple de générer du Markdown.
+
+=== Générer une playlist (`write2???`)
+La fonction `write2???` génère une playlist à partir du résultat d'une requête destiné à un logiciel externe comme https://www.videolan.org/vlc/index.fr.html[vlc].
+
+Cette fonctionnalité étant très proche de la précédente, la définition d'une abstraction représentant le type de sortie (affichage, markdown, playlist, ...) permettrait d'améliorer la conception du programme.
+
+=== Enrichir les données à partir du web (`scrap`)
+La fonction `scrap` (optionnelle) récupère des données sur le web pour un ensemble de fichiers.
+Ces métadonnées complémentaires viendront enrichir les informations conservées pour chaque fichier afin d'en améliorer l'affichage ou de permettre des recherches plus précises.
+
+=== Ajouter des métadonnées (`tag`)
+La fonction `tag` (optionnelle) ajoute un mot-clé à un ensemble de fichiers (requête).
+Ce mot-clé peut ensuite être stocké dans le fichier lui-même afin d'être utilisable à l'extérieure de l'application.
+
+== Un type abstrait pour généraliser à d'autres types de fichiers
+L'idée est de pouvoir généraliser les fonctionnalités ci-dessus à d'autres types de média (photos, vidéo, ...).
+
+. Proposez un type abstrait représentant un fichier de média quelconque.
+. Modifiez votre implémentation des fichiers audio pour utiliser ce tye abstrait
+
+Pour la généralisation, vous pouvez vous restreindre à un sous-ensemble des fonctionnalités proposées ci-dessus.
+
+== Extension à d'autres types de média
+. Implémentez le type abstrait pour un autre type de média de votre choix (photos, vidéo, ...).
+
+== Références
+* https://doc.rust-lang.org/book/ch12-00-an-io-project.html[An I/O Project: Building  Command Line Program]
+* https://rust-cli.github.io/book/index.html[Command line apps in Rust]
+* https://github.com/andrewgremlich/media_organizer[Media Organizer]
+* https://github.com/pdeljanov/Symphonia[Symphonia]
+* Quelques bibliothèques externes en lien avec ce projet
+** https://crates.io/crates/kamadak-exif[kamadak-exif] pour extraite les métadonnées 'images
+** https://crates.io/crates/ffmpeg-next[ffmpeg-next] pour interagir avec FFMPEG
+** https://crates.io/crates/structopt[StructOpt] / https://crates.io/crates/clap[clap] pour parser les arguments de CLI
+** https://crates.io/crates/console[console] pour agrémenter les affichages
+** https://crates.io/crates/pancurses[pancurses] pour créer une IHM dans le terminal
+** https://crates.io/crates/terminal_cli[terminal_cli] pour créer un appli CLI nteractive
+** https://crates.io/crates/walkdir[walkdir] / https://github.com/rust-lang-nursery/lob[glob] pour chercher des fichiers dans le FS
